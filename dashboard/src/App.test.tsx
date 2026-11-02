@@ -19,7 +19,51 @@ const queueClaim: QueueClaim = {
   status: "waiting",
   decision: null,
   payout: null,
+  amount_paid: null,
 };
+
+const overviewClaims: QueueClaim[] = [
+  {
+    ...queueClaim,
+    status: "decided",
+    decision: "approve",
+    payout: 420,
+    amount_paid: 420,
+  },
+  {
+    ...queueClaim,
+    claim_id: "CLM-1002",
+    claim_type: "baggage",
+    status: "waiting_for_sign_off",
+    decision: "approve",
+    payout: 1500,
+  },
+  {
+    ...queueClaim,
+    claim_id: "CLM-1003",
+    claim_type: "baggage",
+    status: "decided",
+    decision: "decline",
+    payout: 0,
+  },
+  {
+    ...queueClaim,
+    claim_id: "CLM-1004",
+    claim_type: "passport",
+    status: "decided",
+    decision: "refer",
+    payout: 0,
+  },
+  {
+    ...queueClaim,
+    claim_id: "CLM-1005",
+    claim_type: "baggage",
+    status: "in_progress",
+    decision: "approve",
+    payout: 300,
+  },
+  { ...queueClaim, claim_id: "CLM-1006" },
+];
 
 const claim: Claim = {
   claim_id: "CLM-1001",
@@ -176,7 +220,7 @@ it("formats money and labels", () => {
 });
 
 it("shows the queue with where each claim stands", async () => {
-  renderAt("#/");
+  renderAt("#/queue");
   const link = await screen.findByRole("link", { name: "CLM-1001" });
   expect(link.getAttribute("href")).toBe("#/claims/CLM-1001");
   const row = link.closest("tr");
@@ -280,7 +324,7 @@ it("shows why a sign-off failed", async () => {
 
 it("works the queue and says how many claims it queued", async () => {
   responses["POST /api/queue/agent-run"] = { started: 1 };
-  renderAt("#/");
+  renderAt("#/queue");
   fireEvent.click(
     await screen.findByRole("button", { name: "Work the queue" }),
   );
@@ -289,12 +333,67 @@ it("works the queue and says how many claims it queued", async () => {
   );
 });
 
+function statValue(label: string): string | null {
+  return screen.getByText(label).nextElementSibling?.textContent ?? null;
+}
+
+function chartRows(): string[] {
+  return within(screen.getByRole("table"))
+    .getAllByRole("row")
+    .slice(1)
+    .map((row) => row.textContent);
+}
+
+it("counts the decisions and adds up the payouts", async () => {
+  responses["/api/claims"] = overviewClaims;
+  renderAt("#/");
+  expect(await screen.findByText("$1,920.00")).toBeDefined();
+  expect(screen.getByText("$420.00")).toBeDefined();
+  expect(screen.getByText("$1,500.00")).toBeDefined();
+  expect(statValue("Claims")).toBe("6");
+  expect(statValue("Approved")).toBe("2");
+  expect(statValue("Declined")).toBe("1");
+  expect(statValue("Referred")).toBe("1");
+  expect(statValue("Not decided yet")).toBe("2");
+});
+
+it("shows claim types largest first and filters them by status", async () => {
+  responses["/api/claims"] = overviewClaims;
+  renderAt("#/");
+  await screen.findByText("$1,920.00");
+  expect(chartRows()).toEqual([
+    "Baggage350%",
+    "Trip delay233%",
+    "Passport117%",
+  ]);
+
+  const decided = screen.getByRole("button", { name: "Decided 3" });
+  fireEvent.click(decided);
+  expect(decided.getAttribute("aria-pressed")).toBe("true");
+  expect(chartRows()).toEqual([
+    "Baggage133%",
+    "Passport133%",
+    "Trip delay133%",
+  ]);
+
+  fireEvent.click(screen.getByRole("button", { name: "Waiting 1" }));
+  expect(chartRows()).toEqual(["Trip delay1100%"]);
+  expect(statValue("Claims")).toBe("6");
+});
+
+it("says when no claim has the chosen status", async () => {
+  renderAt("#/");
+  fireEvent.click(await screen.findByRole("button", { name: "Decided 0" }));
+  expect(screen.getByText("No claims have this status.")).toBeDefined();
+  expect(screen.queryByRole("table")).toBeNull();
+});
+
 it("shows a plain message when the backend does not respond", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(() => Promise.resolve(new Response("oops", { status: 500 }))),
   );
-  renderAt("#/");
+  renderAt("#/queue");
   expect((await screen.findByRole("alert")).textContent).toBe(
     "The backend did not respond",
   );

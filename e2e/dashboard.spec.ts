@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("a handler can read the queue, a claim and the instructions", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#/queue");
   await expect(
     page.getByRole("heading", { name: "Claims queue" }),
   ).toBeVisible();
@@ -75,4 +75,24 @@ test("a payout over the limit waits for a handler to sign off", async ({
   await expect(
     page.getByRole("button", { name: "Sign off and pay" }),
   ).toBeHidden();
+});
+
+test("the overview counts decisions and filters claim types by status", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+  await expect(page.getByRole("row", { name: /Baggage delay/ })).toBeVisible();
+  await page.getByRole("button", { name: /^Decided/ }).click();
+  await expect(page.getByRole("row", { name: /Baggage delay/ })).toHaveCount(0);
+
+  await page.goto("/#/claims/CLM-1004");
+  await page.getByRole("button", { name: "Run agent" }).click();
+  await expect(page.locator(".page-title .chip")).toHaveText("Decided");
+
+  await page.getByRole("link", { name: "Overview" }).click();
+  const referred = page.locator(".stat", { hasText: "Referred" });
+  await expect(referred.locator(".stat-value")).toHaveText("1");
+  await page.getByRole("button", { name: /^Decided/ }).click();
+  await expect(page.getByRole("row", { name: /Baggage delay/ })).toBeVisible();
 });

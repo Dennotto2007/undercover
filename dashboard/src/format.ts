@@ -14,6 +14,13 @@ export const STATUS_LABELS: Record<ClaimStatus, string> = {
   decided: "Decided",
 };
 
+export const STATUSES: ClaimStatus[] = [
+  "waiting",
+  "in_progress",
+  "waiting_for_sign_off",
+  "decided",
+];
+
 export const DECISION_LABELS: Record<DecisionKind, string> = {
   approve: "Approved",
   decline: "Declined",

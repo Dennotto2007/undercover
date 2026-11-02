@@ -30,10 +30,12 @@ def list_claims() -> list[Record]:
         rows = connection.execute(
             """
             SELECT claims.claim_id, customers.name AS customer_name, claim_type,
-                   amount_claimed, submitted_on, status, decision, payout
+                   amount_claimed, submitted_on, status, decision, payout,
+                   payments.amount AS amount_paid
             FROM claims
             JOIN customers USING (customer_id)
             LEFT JOIN decisions USING (claim_id)
+            LEFT JOIN payments USING (claim_id)
             ORDER BY claim_id
             """
         ).fetchall()

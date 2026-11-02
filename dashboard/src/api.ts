@@ -12,6 +12,7 @@ export interface QueueClaim {
   status: ClaimStatus;
   decision: DecisionKind | null;
   payout: number | null;
+  amount_paid: number | null;
 }
 
 export interface Item {

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { ClaimPage } from "./ClaimPage";
 import { InstructionsPage } from "./InstructionsPage";
+import { OverviewPage } from "./OverviewPage";
 import { QueuePage } from "./QueuePage";
 import "./theme.css";
 
@@ -18,8 +19,9 @@ const currentHash = (): string => window.location.hash;
 function Page({ hash }: Readonly<{ hash: string }>) {
   const claimId = CLAIM_ROUTE.exec(hash)?.[1];
   if (claimId) return <ClaimPage key={claimId} claimId={claimId} />;
+  if (hash === "#/queue") return <QueuePage />;
   if (hash === "#/instructions") return <InstructionsPage />;
-  return <QueuePage />;
+  return <OverviewPage />;
 }
 
 export function App() {
@@ -33,7 +35,8 @@ export function App() {
         </a>
         <span className="tagline">Claims dashboard</span>
         <nav aria-label="Main">
-          <a href="#/">Queue</a>
+          <a href="#/">Overview</a>
+          <a href="#/queue">Queue</a>
           <a href="#/instructions">Instructions</a>
         </nav>
       </header>

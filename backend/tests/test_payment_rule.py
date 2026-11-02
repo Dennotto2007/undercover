@@ -131,6 +131,7 @@ def test_sign_off_records_the_handler_and_pays(client: TestClient):
     assert recorded["sign_off"]["handler_name"] == "Dana Whitfield"
     assert recorded["payment"]["amount"] == 1500
     assert payment_rows() == 1
+    assert client.get("/api/claims").json()[0]["amount_paid"] == 1500
 
 
 def test_sign_off_refuses_the_wrong_handler_or_claim(client: TestClient):

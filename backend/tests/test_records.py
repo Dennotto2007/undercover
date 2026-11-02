@@ -42,6 +42,7 @@ def test_queue_holds_exactly_the_seeded_claims(client: TestClient):
         "status": "waiting",
         "decision": None,
         "payout": None,
+        "amount_paid": None,
     }
 
 
