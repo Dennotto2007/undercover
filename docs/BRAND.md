@@ -10,22 +10,22 @@ From Google Fonts:
 
 ## Colors
 
-- **Primary**: Sea Green `#06D6A0`, Midnight text
-- **Secondary**: Marigold `#FFC145`, Midnight text
-- **Tertiary**: Coral `#F78C6B`, Midnight text
-- **Information**: Cerulean `#118AB2`, white text
-- **Highlight or alert**: Raspberry `#EF476F`, white text
-- **Ink on light backgrounds**: Midnight `#073B4C`
-- **Ink on dark backgrounds**: Sea Mist `#CDD8DB`
+- **Primary**: Royal Blue `#2457D6`, white text
+- **Secondary**: Ice Blue `#DBEAFE`, Slate text
+- **Tertiary**: Silver Grey `#E2E8F0`, Slate text
+- **Information**: Deep Blue `#1E40AF`, white text
+- **Highlight or alert**: Steel Blue `#475569`, white text
+- **Ink on light backgrounds**: Slate `#1E293B`
+- **Ink on dark backgrounds**: Cloud `#E2E8F0`
 
-Use Sea Green, Marigold and Coral when three things sit side by side, such as a claim's states or chart series. Add Cerulean fourth and Raspberry fifth.
+Use Royal Blue, Ice Blue and Silver Grey when three things sit side by side, such as a claim’s states or chart series. Add Deep Blue fourth and Steel Blue fifth. For charts, also use labels or distinct markers to distinguish similar shades.
 
 ## Surfaces
 
-- **Light mode**: page background `#F0F4F5`, white panels and cards
-- **Dark mode**: page background `#04232E`, black panels and cards
+- **Light mode**: page background `#F1F5F9`, white panels and cards
+- **Dark mode**: page background `#0F172A`, charcoal blue `#1E293B` panels and cards
 
-Panels are rounded with no outline. Sea Green and Marigold are too bright for small text, so darken them for headings and body text on light backgrounds and lighten them on dark ones.
+Panels are rounded with no outline. Use Royal Blue for headings and links on light backgrounds and Sky Blue `#93C5FD` on dark backgrounds. Keep Ice Blue and Silver Grey for fills and surfaces on light backgrounds.
 
 ## Avoid
 
