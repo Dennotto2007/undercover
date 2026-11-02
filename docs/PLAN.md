@@ -161,17 +161,17 @@ Builds the instructions, the tools, the step log, the `run` entry point and the 
 
 Builds the look and the three pages with live data but no actions, and sets up the Playwright test server. Layout and brand are checked here, before behavior is added on top.
 
-- [ ] Instrument Sans, Instrument Serif and JetBrains Mono load from Google Fonts. Claim ids and amounts use JetBrains Mono.
-- [ ] Light mode uses page `#F1F5F9` with white panels, and dark mode uses page `#0F172A` with `#1E293B` panels. Panels are rounded with no outline, and no panel has a border on one edge.
-- [ ] The queue page shows 25 rows with claim id, customer, type, amount, submitted date, status and decision.
-- [ ] Status chips use Royal Blue, Ice Blue, Silver Grey and Deep Blue with a text label, so status never relies on color alone. Ice Blue and Silver Grey are not used as fills in dark mode.
-- [ ] Money displays like `$1,250.00`, in a test.
-- [ ] Clicking a claim opens its page, and `#/claims/CLM-1001` opens it directly and survives a refresh.
-- [ ] The claim page shows the story, items, documents, policy, plan limits and claim history, then the decision, reason, policy section and payout once they exist.
-- [ ] The instructions page shows the text from the API with no editing controls.
-- [ ] Browser, both modes: open the queue, click CLM-1001, read the page, go to instructions and go back, with a screenshot of each and no console errors.
-- [ ] `backend/tests/e2e_app.py` and the Playwright config are in place, and `e2e/health.spec.ts` is replaced by a test of the same three pages.
-- [ ] TypeScript strict mode passes with no `any`, and `npm run check:ts` and `npm run e2e` pass.
+- [x] Instrument Sans, Instrument Serif and JetBrains Mono load from Google Fonts. Claim ids and amounts use JetBrains Mono.
+- [x] Light mode uses page `#F1F5F9` with white panels, and dark mode uses page `#0F172A` with `#1E293B` panels. Panels are rounded with no outline, and no panel has a border on one edge.
+- [x] The queue page shows 25 rows with claim id, customer, type, amount, submitted date, status and decision.
+- [x] Status chips use Royal Blue, Ice Blue, Silver Grey and Deep Blue with a text label, so status never relies on color alone. Ice Blue and Silver Grey are not used as fills in dark mode.
+- [x] Money displays like `$1,250.00`, in a test.
+- [x] Clicking a claim opens its page, and `#/claims/CLM-1001` opens it directly and survives a refresh.
+- [x] The claim page shows the story, items, documents, policy, plan limits and claim history, then the decision, reason, policy section and payout once they exist.
+- [x] The instructions page shows the text from the API with no editing controls.
+- [x] Browser, both modes: open the queue, click CLM-1001, read the page, go to instructions and go back, with a screenshot of each and no console errors.
+- [x] `backend/tests/e2e_app.py` and the Playwright config are in place, and `e2e/health.spec.ts` is replaced by a test of the same three pages.
+- [x] TypeScript strict mode passes with no `any`, and `npm run check:ts` and `npm run e2e` pass.
 
 ## Phase 5: The dashboard, acting
 

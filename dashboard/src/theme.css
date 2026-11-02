@@ -1,0 +1,291 @@
+:root {
+  color-scheme: light dark;
+
+  --royal-blue: #2457d6;
+  --ice-blue: #dbeafe;
+  --silver-grey: #e2e8f0;
+  --deep-blue: #1e40af;
+  --steel-blue: #475569;
+  --sky-blue: #93c5fd;
+  --slate: #1e293b;
+  --cloud: #e2e8f0;
+  --white: #fff;
+
+  --page: #f1f5f9;
+  --panel: var(--white);
+  --ink: var(--slate);
+  --accent: var(--royal-blue);
+  --table-rule: var(--silver-grey);
+
+  --waiting-fill: var(--silver-grey);
+  --waiting-ink: var(--slate);
+  --in-progress-fill: var(--ice-blue);
+  --in-progress-ink: var(--slate);
+
+  --sans: "Instrument Sans", sans-serif;
+  --serif: "Instrument Serif", serif;
+  --mono: "JetBrains Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0f172a;
+    --panel: #1e293b;
+    --ink: var(--cloud);
+    --accent: var(--sky-blue);
+    --table-rule: var(--steel-blue);
+
+    --waiting-fill: var(--steel-blue);
+    --waiting-ink: var(--white);
+    --in-progress-fill: var(--sky-blue);
+    --in-progress-ink: var(--slate);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+.shell {
+  width: 100%;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.brand {
+  color: var(--accent);
+  font-size: 1.375rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tagline {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+}
+
+.masthead nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: auto;
+}
+
+.masthead nav a {
+  padding: 0.5rem 0;
+  font-weight: 500;
+}
+
+.page-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-title .action {
+  margin-left: auto;
+}
+
+.panel {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--panel);
+}
+
+.table-panel {
+  overflow-x: auto;
+  padding: 0.5rem 1.25rem;
+}
+
+.table-panel h2 {
+  margin-top: 0.75rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+th,
+td {
+  padding: 0.75rem 1rem 0.75rem 0;
+  white-space: nowrap;
+}
+
+tbody td {
+  border-top: 1px solid var(--table-rule);
+}
+
+.wrap {
+  white-space: normal;
+}
+
+.number,
+.id {
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
+th.number,
+td.number {
+  padding-right: 1.5rem;
+  text-align: right;
+}
+
+th.number {
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+}
+
+h1.id {
+  font-size: 1.75rem;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip-waiting {
+  background: var(--waiting-fill);
+  color: var(--waiting-ink);
+}
+
+.chip-in_progress {
+  background: var(--in-progress-fill);
+  color: var(--in-progress-ink);
+}
+
+.chip-waiting_for_sign_off {
+  background: var(--deep-blue);
+  color: var(--white);
+}
+
+.chip-decided {
+  background: var(--royal-blue);
+  color: var(--white);
+}
+
+.claim-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.column {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+@media (min-width: 60rem) {
+  .claim-layout {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+.quote {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.document {
+  margin-top: 1rem;
+}
+
+.document p {
+  margin: 0.25rem 0 0;
+}
+
+.facts {
+  display: grid;
+  gap: 0.25rem 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0;
+}
+
+.facts dd {
+  margin: 0;
+  text-align: right;
+}
+
+.decision-kind {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.instructions {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.muted {
+  color: var(--ink);
+  opacity: 0.8;
+}
