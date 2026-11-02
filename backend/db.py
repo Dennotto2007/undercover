@@ -54,6 +54,24 @@ CREATE TABLE IF NOT EXISTS claims (
     documents TEXT NOT NULL,
     status TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS decisions (
+    claim_id TEXT PRIMARY KEY REFERENCES claims,
+    decision TEXT NOT NULL,
+    payout REAL NOT NULL,
+    reason TEXT NOT NULL,
+    policy_section TEXT NOT NULL,
+    decided_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS sign_offs (
+    claim_id TEXT PRIMARY KEY REFERENCES claims,
+    handler_id TEXT NOT NULL REFERENCES handlers,
+    signed_off_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS payments (
+    claim_id TEXT PRIMARY KEY REFERENCES claims,
+    amount REAL NOT NULL,
+    paid_at TEXT NOT NULL
+);
 """
 
 

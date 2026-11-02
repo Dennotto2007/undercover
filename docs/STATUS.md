@@ -2,7 +2,7 @@
 
 The pilot is being built from `docs/PLAN.md`.
 
-- `backend/`: SQLite records seeded from `data/`, with the read operations for claims, policies, customers, the policy wording and handlers
+- `backend/`: SQLite records seeded from `data/`, with the read operations for claims, policies, customers, the policy wording and handlers, and the write operations to start a claim, record a decision, pay and sign off. A payout over the limit cannot be paid without a handler's sign-off
 - `agent/`: still the skeleton, with one tool that calls the health route
 - `dashboard/`: still the skeleton, with one page that shows whether the backend is up
 - `e2e/`: one test of that page

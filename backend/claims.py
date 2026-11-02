@@ -30,23 +30,57 @@ def list_claims() -> list[Record]:
         rows = connection.execute(
             """
             SELECT claims.claim_id, customers.name AS customer_name, claim_type,
-                   amount_claimed, submitted_on, status
-            FROM claims JOIN customers USING (customer_id)
+                   amount_claimed, submitted_on, status, decision, payout
+            FROM claims
+            JOIN customers USING (customer_id)
+            LEFT JOIN decisions USING (claim_id)
             ORDER BY claim_id
             """
         ).fetchall()
     return [dict(row) for row in rows]
 
 
+def first_or_none(
+    connection: sqlite3.Connection, query: str, claim_id: str
+) -> Record | None:
+    """Return the first row of a query about one claim, if there is one."""
+    row = connection.execute(query, (claim_id,)).fetchone()
+    return dict(row) if row else None
+
+
 def get_claim(claim_id: str) -> Record:
-    """Return one claim in full."""
+    """Return one claim in full, with its decision, sign-off and payment."""
     with db.reading() as connection:
         claim = find(connection, "claims", "claim_id", claim_id)
         customer = find(connection, "customers", "customer_id", claim["customer_id"])
+        decision = first_or_none(
+            connection,
+            """
+            SELECT decision, payout, reason, policy_section, decided_at
+            FROM decisions WHERE claim_id = ?
+            """,
+            claim_id,
+        )
+        sign_off = first_or_none(
+            connection,
+            """
+            SELECT handler_id, name AS handler_name, signed_off_at
+            FROM sign_offs JOIN handlers USING (handler_id) WHERE claim_id = ?
+            """,
+            claim_id,
+        )
+        payment = first_or_none(
+            connection,
+            "SELECT amount, paid_at FROM payments WHERE claim_id = ?",
+            claim_id,
+        )
     return dict(claim) | {
         "customer_name": customer["name"],
         "items": json.loads(claim["items"]),
         "documents": json.loads(claim["documents"]),
+        "decision": decision,
+        "sign_off": sign_off,
+        "payment": payment,
     }
 
 

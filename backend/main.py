@@ -5,8 +5,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from backend import claims, db
+from backend import claims, db, decisions
 from backend.claims import Record
+from backend.decisions import Decision, Payment, SignOff
 
 
 @asynccontextmanager
@@ -59,3 +60,27 @@ def get_policy_wording() -> dict[str, str]:
 def list_handlers() -> list[Record]:
     """List the claims handlers."""
     return claims.list_handlers()
+
+
+@app.post("/api/claims/{claim_id}/start", operation_id="start_claim")
+def start_claim(claim_id: str) -> dict[str, str]:
+    """Move a waiting claim to in progress."""
+    return decisions.start_claim(claim_id)
+
+
+@app.post("/api/claims/{claim_id}/decision", operation_id="record_decision")
+def record_decision(claim_id: str, decision: Decision) -> dict[str, str]:
+    """Record the decision on an in progress claim and return the new status."""
+    return decisions.record_decision(claim_id, decision)
+
+
+@app.post("/api/claims/{claim_id}/payment", operation_id="pay_claim")
+def pay_claim(claim_id: str, payment: Payment) -> dict[str, str]:
+    """Pay an approved claim."""
+    return decisions.pay_claim(claim_id, payment.amount)
+
+
+@app.post("/api/claims/{claim_id}/sign-off", operation_id="sign_off_claim")
+def sign_off_claim(claim_id: str, sign_off: SignOff) -> dict[str, str]:
+    """Record a handler's sign-off and make the payment."""
+    return decisions.sign_off_claim(claim_id, sign_off.handler_id)

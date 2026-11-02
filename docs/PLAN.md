@@ -120,22 +120,22 @@ Builds `backend/db.py` and the read operations. This comes first because everyth
 
 Builds the rule the spec cares about most, as backend code with no agent involved, so it is proven before anything can try to break it.
 
-- [ ] `start_claim` moves a `waiting` claim to `in_progress`, and returns 409 for any other status.
-- [ ] `record_decision` with a decline or a referral moves the claim to `decided`. A nonzero payout on either returns 422.
-- [ ] `record_decision` with an approve of $1,000.00 leaves the claim `in_progress`, and paying $1,000.00 moves it to `decided`.
-- [ ] `record_decision` with an approve of $1,000.01 moves the claim to `waiting_for_sign_off`.
-- [ ] `record_decision` with an approve of $0 moves the claim straight to `decided` with no payment.
-- [ ] `record_decision` on a claim that is not `in_progress` returns 409, so a $1,500 approval cannot be lowered to $900.
-- [ ] `pay_claim` without a sign-off on a $1,500 approval returns 403, the reason names the sign-off, and no payment row exists.
-- [ ] `pay_claim` with an amount other than the approved payout returns 409, and no payment row exists. This is tested with $900 against a $1,500 approval.
-- [ ] `pay_claim` a second time returns 409, and exactly one payment row exists.
-- [ ] `pay_claim` on a claim with no decision, or with a decline, returns 409.
-- [ ] Two `pay_claim` calls at the same moment on a real database file give one 200 and one 409, with one payment row. Two `sign_off_claim` calls at the same moment do the same.
-- [ ] `sign_off_claim` with a valid handler on a `waiting_for_sign_off` claim records the handler, makes the payment and moves the claim to `decided`.
-- [ ] `sign_off_claim` returns 404 for an unknown handler, 403 for a handler whose `can_approve_over_limit` is false, and 409 for a claim not waiting for sign-off.
-- [ ] `get_claim` includes the decision, the sign-off and the payment once they exist.
-- [ ] Changing the limit in the seed data changes where the block applies, which proves it is not hard-coded. This is covered by a test.
-- [ ] `npm run check:python` passes.
+- [x] `start_claim` moves a `waiting` claim to `in_progress`, and returns 409 for any other status.
+- [x] `record_decision` with a decline or a referral moves the claim to `decided`. A nonzero payout on either returns 422.
+- [x] `record_decision` with an approve of $1,000.00 leaves the claim `in_progress`, and paying $1,000.00 moves it to `decided`.
+- [x] `record_decision` with an approve of $1,000.01 moves the claim to `waiting_for_sign_off`.
+- [x] `record_decision` with an approve of $0 moves the claim straight to `decided` with no payment.
+- [x] `record_decision` on a claim that is not `in_progress` returns 409, so a $1,500 approval cannot be lowered to $900.
+- [x] `pay_claim` without a sign-off on a $1,500 approval returns 403, the reason names the sign-off, and no payment row exists.
+- [x] `pay_claim` with an amount other than the approved payout returns 409, and no payment row exists. This is tested with $900 against a $1,500 approval.
+- [x] `pay_claim` a second time returns 409, and exactly one payment row exists.
+- [x] `pay_claim` on a claim with no decision, or with a decline, returns 409.
+- [x] Two `pay_claim` calls at the same moment on a real database file give one 200 and one 409, with one payment row. Two `sign_off_claim` calls at the same moment do the same.
+- [x] `sign_off_claim` with a valid handler on a `waiting_for_sign_off` claim records the handler, makes the payment and moves the claim to `decided`.
+- [x] `sign_off_claim` returns 404 for an unknown handler, 403 for a handler whose `can_approve_over_limit` is false, and 409 for a claim not waiting for sign-off.
+- [x] `get_claim` includes the decision, the sign-off and the payment once they exist.
+- [x] Changing the limit in the seed data changes where the block applies, which proves it is not hard-coded. This is covered by a test.
+- [x] `npm run check:python` passes.
 
 ## Phase 3: The UnderCover Agent
 
