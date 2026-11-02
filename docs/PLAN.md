@@ -193,13 +193,13 @@ Adds the handler's actions and the live view. These go in once the read pages ar
 
 Smoke-checks the whole product on the real model, then finishes the documents. This shows the path works, not that the decisions are right.
 
-- [ ] Real model, through the dashboard, on separate ports and a scratch database: Run agent on CLM-1002 (baggage), CLM-1003 (emergency medical), CLM-1004 (baggage delay) and CLM-1008 (trip cancellation). For each one, steps appear live, the claim ends `Waiting for sign-off` or `Decided`, and the decision has a payout, a reason of two or three sentences and a policy section.
-- [ ] Any claim that approves over the limit shows `Waiting for sign-off` with no payment until a handler signs off in the browser. If none does, I report that, and the stub-model Playwright test from Phase 5 stands as the proof for that path.
-- [ ] Instructions are adjusted if those runs show a clear gap, such as a reason that runs past three sentences or a missing policy section.
-- [ ] The real-model checks leave `undercover.db` untouched, so the student starts with a clean queue of 25.
-- [ ] `docs/STATUS.md` says what is built, how to run it and how to reset the data: stop the backend, delete `undercover.db` and start it again.
-- [ ] `git grep -n "evals" backend agent` still finds nothing, and no secret is committed.
-- [ ] `npm run check` passes in full: ruff, pyright, pytest, ESLint, Prettier, tsc, vitest and Playwright.
+- [x] Real model, through the dashboard, on separate ports and a scratch database: Run agent on CLM-1002 (baggage), CLM-1003 (emergency medical), CLM-1004 (baggage delay) and CLM-1008 (trip cancellation). For each one, steps appear live, the claim ends `Waiting for sign-off` or `Decided`, and the decision has a payout, a reason of two or three sentences and a policy section.
+- [x] Any claim that approves over the limit shows `Waiting for sign-off` with no payment until a handler signs off in the browser. If none does, I report that, and the stub-model Playwright test from Phase 5 stands as the proof for that path.
+- [x] Instructions are adjusted if those runs show a clear gap, such as a reason that runs past three sentences or a missing policy section.
+- [x] The real-model checks leave `undercover.db` untouched, so the student starts with a clean queue of 25.
+- [x] `docs/STATUS.md` says what is built, how to run it and how to reset the data: stop the backend, delete `undercover.db` and start it again.
+- [x] `git grep -n "evals" backend agent` still finds nothing, and no secret is committed.
+- [x] `npm run check` passes in full: ruff, pyright, pytest, ESLint, Prettier, tsc, vitest and Playwright.
 
 ## What this plan leaves open
 

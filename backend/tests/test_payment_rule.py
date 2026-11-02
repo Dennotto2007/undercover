@@ -169,7 +169,9 @@ def test_the_limit_comes_from_the_seed_data(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
     seed_dir = tmp_path / "data"
-    shutil.copytree(DATA, seed_dir, ignore=shutil.ignore_patterns("evals", "security"))
+    seed_dir.mkdir()
+    for name in db.SEED_FILES:
+        shutil.copy(DATA / name, seed_dir / name)
     company = json.loads((seed_dir / "company.json").read_text())
     company["payout_approval_limit"] = 500.0
     (seed_dir / "company.json").write_text(json.dumps(company))
