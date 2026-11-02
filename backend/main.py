@@ -2,12 +2,15 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 
-from backend import claims, db, decisions
+from backend import claims, db, decisions, worker
 from backend.claims import Record
-from backend.decisions import Decision, Payment, SignOff
+from backend.decisions import Decision, Payment, SignOff, Step
+
+INSTRUCTIONS = Path(__file__).parent / "instructions.md"
 
 
 @asynccontextmanager
@@ -56,6 +59,12 @@ def get_policy_wording() -> dict[str, str]:
     return {"text": wording}
 
 
+@app.get("/api/instructions", operation_id="get_instructions")
+def get_instructions() -> dict[str, str]:
+    """Read the agent's instructions."""
+    return {"text": INSTRUCTIONS.read_text(encoding="utf-8")}
+
+
 @app.get("/api/handlers", operation_id="list_handlers")
 def list_handlers() -> list[Record]:
     """List the claims handlers."""
@@ -84,3 +93,35 @@ def pay_claim(claim_id: str, payment: Payment) -> dict[str, str]:
 def sign_off_claim(claim_id: str, sign_off: SignOff) -> dict[str, str]:
     """Record a handler's sign-off and make the payment."""
     return decisions.sign_off_claim(claim_id, sign_off.handler_id)
+
+
+@app.post("/api/claims/{claim_id}/steps", operation_id="record_step")
+def record_step(claim_id: str, step: Step) -> dict[str, str]:
+    """Record what the agent is doing on a claim."""
+    return decisions.record_step(claim_id, step)
+
+
+@app.get("/api/claims/{claim_id}/steps", operation_id="list_steps")
+def list_steps(claim_id: str) -> list[Record]:
+    """List what the agent has done on a claim."""
+    return claims.list_steps(claim_id)
+
+
+@app.post(
+    "/api/claims/{claim_id}/agent-run",
+    operation_id="run_agent_on_claim",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def run_agent_on_claim(claim_id: str) -> dict[str, str]:
+    """Queue one waiting claim for the agent."""
+    return worker.run_agent_on_claim(claim_id)
+
+
+@app.post(
+    "/api/queue/agent-run",
+    operation_id="work_queue",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def work_queue() -> dict[str, int]:
+    """Queue every waiting claim for the agent."""
+    return worker.work_queue()

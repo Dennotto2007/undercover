@@ -72,6 +72,13 @@ CREATE TABLE IF NOT EXISTS payments (
     amount REAL NOT NULL,
     paid_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS steps (
+    step_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    claim_id TEXT NOT NULL REFERENCES claims,
+    thread_id TEXT NOT NULL,
+    text TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
 """
 
 
@@ -158,9 +165,18 @@ def seed(connection: sqlite3.Connection) -> None:
 
 
 def setup() -> None:
-    """Create the tables and seed them the first time the backend starts."""
+    """Create and seed the tables, and put back any claim a restart interrupted."""
     with reading() as connection:
         connection.executescript(SCHEMA)
     with transaction() as connection:
         if connection.execute("SELECT 1 FROM claims LIMIT 1").fetchone() is None:
             seed(connection)
+        connection.execute(
+            """
+            DELETE FROM decisions WHERE claim_id IN
+            (SELECT claim_id FROM claims WHERE status = 'in_progress')
+            """
+        )
+        connection.execute(
+            "UPDATE claims SET status = 'waiting' WHERE status = 'in_progress'"
+        )

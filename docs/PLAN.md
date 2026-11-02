@@ -141,21 +141,21 @@ Builds the rule the spec cares about most, as backend code with no agent involve
 
 Builds the instructions, the tools, the step log, the `run` entry point and the worker. The health-check tool is removed. `run` fetches its instructions from the API, then the agent reads the claim, policy, history and wording through its tools.
 
-- [ ] `backend/instructions.md` covers what to read, when to approve, decline or refer, how to work out the payout from section 10 of the wording, the two or three sentence reason and the policy section. It does not mention the claims manual.
-- [ ] The agent's tools are exactly `get_claim`, `get_policy`, `get_customer`, `get_policy_wording`, `record_decision` and `pay_claim`. A test asserts the list, which proves it has no sign-off tool.
-- [ ] A `4xx` from the API reaches the model as the tool's result, so the model can read why, and does not crash the run.
-- [ ] A stub-model test runs a claim to the end: it moves to `decided`, a payment exists and the steps are recorded in order.
-- [ ] A stub-model test scripts the agent to approve $1,500 and then try to pay anyway. The claim ends `waiting_for_sign_off`, no payment exists and the blocked attempt shows in the steps.
-- [ ] `record_decision` tells the agent the resulting status, so the instructions need no dollar limit.
-- [ ] `run_agent_on_claim` returns 202 for a `waiting` claim and 409 otherwise. `work_queue` starts every `waiting` claim and returns how many it started.
-- [ ] Runs happen one at a time, in claim order. This is tested with a stub runner.
-- [ ] A stub runner that records a $400 approval and then raises leaves the claim `waiting`. `get_claim` shows no decision and no payment, and the last step reads `The agent stopped before finishing:` followed by the error.
-- [ ] A stub-model run that ends with no decision, and one whose $400 approval is followed by a refused payment, both end the same way.
-- [ ] A run that fails after the claim reached `waiting_for_sign_off` or `decided` leaves the claim, its decision and its payment unchanged.
-- [ ] `model()` sets a 120 second request timeout, so a hung model call fails the run and does not hold up the queue.
-- [ ] A backend restart moves any `in_progress` claim back to `waiting` and clears its decision. This is tested with a claim set up that way before startup.
-- [ ] Real model, one claim, on a separate port and scratch database: `run("CLM-1001", "plan-check")` ends with CLM-1001 no longer `in_progress`, a decision with a two or three sentence reason and a policy section, and steps listed by `GET /api/claims/CLM-1001/steps`.
-- [ ] `npm run check:python` passes, with no test calling a model.
+- [x] `backend/instructions.md` covers what to read, when to approve, decline or refer, how to work out the payout from section 10 of the wording, the two or three sentence reason and the policy section. It does not mention the claims manual.
+- [x] The agent's tools are exactly `get_claim`, `get_policy`, `get_customer`, `get_policy_wording`, `record_decision` and `pay_claim`. A test asserts the list, which proves it has no sign-off tool.
+- [x] A `4xx` from the API reaches the model as the tool's result, so the model can read why, and does not crash the run.
+- [x] A stub-model test runs a claim to the end: it moves to `decided`, a payment exists and the steps are recorded in order.
+- [x] A stub-model test scripts the agent to approve $1,500 and then try to pay anyway. The claim ends `waiting_for_sign_off`, no payment exists and the blocked attempt shows in the steps.
+- [x] `record_decision` tells the agent the resulting status, so the instructions need no dollar limit.
+- [x] `run_agent_on_claim` returns 202 for a `waiting` claim and 409 otherwise. `work_queue` starts every `waiting` claim and returns how many it started.
+- [x] Runs happen one at a time, in claim order. This is tested with a stub runner.
+- [x] A stub runner that records a $400 approval and then raises leaves the claim `waiting`. `get_claim` shows no decision and no payment, and the last step reads `The agent stopped before finishing:` followed by the error.
+- [x] A stub-model run that ends with no decision, and one whose $400 approval is followed by a refused payment, both end the same way.
+- [x] A run that fails after the claim reached `waiting_for_sign_off` or `decided` leaves the claim, its decision and its payment unchanged.
+- [x] `model()` sets a 120 second request timeout, so a hung model call fails the run and does not hold up the queue.
+- [x] A backend restart moves any `in_progress` claim back to `waiting` and clears its decision. This is tested with a claim set up that way before startup.
+- [x] Real model, one claim, on a separate port and scratch database: `run("CLM-1001", "plan-check")` ends with CLM-1001 no longer `in_progress`, a decision with a two or three sentence reason and a policy section, and steps listed by `GET /api/claims/CLM-1001/steps`.
+- [x] `npm run check:python` passes, with no test calling a model.
 
 ## Phase 4: The dashboard, reading
 

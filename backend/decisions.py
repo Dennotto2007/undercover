@@ -37,6 +37,11 @@ class SignOff(BaseModel):
     handler_id: str
 
 
+class Step(BaseModel):
+    thread_id: str
+    text: str
+
+
 def now() -> str:
     """Return the time as an ISO 8601 string."""
     return datetime.now(UTC).isoformat()
@@ -160,3 +165,36 @@ def sign_off_claim(claim_id: str, handler_id: str) -> dict[str, str]:
         ).fetchone()[0]
         pay(connection, claim_id, payout)
     return {"status": "decided"}
+
+
+def add_step(
+    connection: sqlite3.Connection, claim_id: str, thread_id: str, text: str
+) -> None:
+    """Add a line to a claim's step log."""
+    connection.execute(
+        "INSERT INTO steps (claim_id, thread_id, text, created_at) VALUES (?, ?, ?, ?)",
+        (claim_id, thread_id, text, now()),
+    )
+
+
+def record_step(claim_id: str, step: Step) -> dict[str, str]:
+    """Record what the agent is doing on a claim."""
+    with db.transaction() as connection:
+        find(connection, "claims", "claim_id", claim_id)
+        add_step(connection, claim_id, step.thread_id, step.text)
+    return {"status": "recorded"}
+
+
+def release(claim_id: str, thread_id: str, problem: str) -> None:
+    """Put a claim the agent left in progress back in the queue."""
+    with db.transaction() as connection:
+        released = connection.execute(
+            """
+            UPDATE claims SET status = 'waiting'
+            WHERE claim_id = ? AND status = 'in_progress'
+            """,
+            (claim_id,),
+        ).rowcount
+        if released:
+            connection.execute("DELETE FROM decisions WHERE claim_id = ?", (claim_id,))
+            add_step(connection, claim_id, thread_id, problem)

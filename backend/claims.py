@@ -118,3 +118,22 @@ def list_handlers() -> list[Record]:
         dict(row) | {"can_approve_over_limit": bool(row["can_approve_over_limit"])}
         for row in rows
     ]
+
+
+def list_steps(claim_id: str) -> list[Record]:
+    """Return what the agent has done on a claim, oldest first."""
+    with db.reading() as connection:
+        find(connection, "claims", "claim_id", claim_id)
+        rows = connection.execute(
+            "SELECT * FROM steps WHERE claim_id = ? ORDER BY step_id", (claim_id,)
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def waiting_claims() -> list[str]:
+    """Return the ids of the waiting claims, in queue order."""
+    with db.reading() as connection:
+        rows = connection.execute(
+            "SELECT claim_id FROM claims WHERE status = 'waiting' ORDER BY claim_id"
+        ).fetchall()
+    return [row["claim_id"] for row in rows]
