@@ -1,17 +1,39 @@
+import { Alert } from "./Alert";
 import { api } from "./api";
 import { claimTypeLabel, DECISION_LABELS, money } from "./format";
 import { StatusChip } from "./StatusChip";
+import { useAction } from "./useAction";
 import { usePolled } from "./usePolled";
 
+const claimCount = (count: number): string =>
+  count === 1 ? "1 claim" : `${String(count)} claims`;
+
 export function QueuePage() {
-  const { data: claims, error } = usePolled(api.listClaims);
+  const { data: claims, error, refresh } = usePolled(api.listClaims);
+  const workQueue = useAction(api.workQueue, refresh);
+  const anyWaiting = claims?.some((claim) => claim.status === "waiting");
 
   return (
     <main>
       <div className="page-title">
         <h1>Claims queue</h1>
+        <div className="action">
+          {workQueue.result ? (
+            <p className="action-note" role="status">
+              {claimCount(workQueue.result.started)} queued for the agent
+            </p>
+          ) : (
+            <button
+              type="button"
+              disabled={workQueue.busy || !anyWaiting}
+              onClick={workQueue.run}
+            >
+              Work the queue
+            </button>
+          )}
+        </div>
       </div>
-      {error && <p role="alert">{error}</p>}
+      <Alert message={workQueue.error ?? error} />
       {claims && (
         <section className="panel table-panel">
           <table>

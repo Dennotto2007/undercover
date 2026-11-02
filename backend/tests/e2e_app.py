@@ -14,7 +14,7 @@ from backend.main import app
 __all__ = ["app"]
 
 BACKEND_URL = "http://127.0.0.1:8001"
-SECONDS_PER_REPLY = 0.3
+SECONDS_PER_REPLY = 1
 
 
 class StubModel(GenericFakeChatModel):

@@ -1,5 +1,7 @@
 import { useCallback } from "react";
+import { Alert } from "./Alert";
 import { api, type Claim, type Customer, type Policy } from "./api";
+import { RunAgentButton, SignOffPanel, StepsPanel } from "./ClaimActions";
 import { claimTypeLabel, DECISION_LABELS, money } from "./format";
 import { StatusChip } from "./StatusChip";
 import { usePolled } from "./usePolled";
@@ -60,7 +62,10 @@ function ClaimDetails({ claim }: Readonly<{ claim: Claim }>) {
   );
 }
 
-function DecisionPanel({ claim }: Readonly<{ claim: Claim }>) {
+function DecisionPanel({
+  claim,
+  onSignedOff,
+}: Readonly<{ claim: Claim; onSignedOff: () => void }>) {
   const { decision } = claim;
   return (
     <section className="panel">
@@ -90,6 +95,9 @@ function DecisionPanel({ claim }: Readonly<{ claim: Claim }>) {
         </>
       ) : (
         <p className="muted">The agent has not decided this claim yet.</p>
+      )}
+      {claim.status === "waiting_for_sign_off" && (
+        <SignOffPanel claimId={claim.claim_id} onSignedOff={onSignedOff} />
       )}
     </section>
   );
@@ -188,7 +196,10 @@ function ClaimRecords({ claim }: Readonly<{ claim: Claim }>) {
 
 export function ClaimPage({ claimId }: Readonly<{ claimId: string }>) {
   const loadClaim = useCallback(() => api.getClaim(claimId), [claimId]);
-  const { data: claim, error } = usePolled(loadClaim);
+  const loadSteps = useCallback(() => api.listSteps(claimId), [claimId]);
+  const { data: claim, error, refresh } = usePolled(loadClaim);
+  const { data: steps } = usePolled(loadSteps);
+  const stepCount = steps?.length ?? 0;
 
   return (
     <main>
@@ -196,13 +207,17 @@ export function ClaimPage({ claimId }: Readonly<{ claimId: string }>) {
         <h1 className="id">{claimId}</h1>
         {claim && <span>{claim.customer_name}</span>}
         {claim && <StatusChip status={claim.status} />}
+        {claim?.status === "waiting" && (
+          <RunAgentButton key={stepCount} claimId={claimId} />
+        )}
       </div>
-      {error && <p role="alert">{error}</p>}
+      <Alert message={error} />
       {claim && (
         <div className="claim-layout">
           <ClaimDetails claim={claim} />
           <div className="column">
-            <DecisionPanel claim={claim} />
+            <DecisionPanel claim={claim} onSignedOff={refresh} />
+            <StepsPanel steps={steps ?? []} />
             <ClaimRecords claim={claim} />
           </div>
         </div>

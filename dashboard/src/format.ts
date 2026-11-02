@@ -24,3 +24,7 @@ export function claimTypeLabel(claimType: string): string {
   const words = claimType.replaceAll("_", " ");
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
+
+export function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

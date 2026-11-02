@@ -1,4 +1,10 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Claim, Customer, Policy, QueueClaim } from "./api";
 import { App } from "./App";
@@ -90,9 +96,13 @@ const customer: Customer = {
 
 let responses: Record<string, unknown>;
 
-function reply(url: string): Promise<Response> {
-  if (url in responses) {
-    return Promise.resolve(new Response(JSON.stringify(responses[url])));
+const posted: { url: string; body: RequestInit["body"] }[] = [];
+
+function reply(url: string, init?: RequestInit): Promise<Response> {
+  const key = init?.method === "POST" ? `POST ${url}` : url;
+  if (init?.method === "POST") posted.push({ url, body: init.body });
+  if (key in responses) {
+    return Promise.resolve(new Response(JSON.stringify(responses[key])));
   }
   return Promise.resolve(
     new Response(JSON.stringify({ detail: "Not found" }), { status: 404 }),
@@ -104,8 +114,48 @@ function renderAt(hash: string): void {
   render(<App />);
 }
 
+const steps = [
+  {
+    step_id: 1,
+    thread_id: "t1",
+    text: "Reading the claim",
+    created_at: "2026-11-02T10:00:00+00:00",
+  },
+];
+
+const waitingClaim: Claim = {
+  ...claim,
+  status: "waiting",
+  decision: null,
+  sign_off: null,
+  payment: null,
+};
+
+const signOffClaim: Claim = {
+  ...claim,
+  status: "waiting_for_sign_off",
+  sign_off: null,
+  payment: null,
+};
+
 beforeEach(() => {
+  posted.length = 0;
   responses = {
+    "/api/claims/CLM-1001/steps": steps,
+    "/api/handlers": [
+      {
+        handler_id: "HND-01",
+        name: "Dana Whitfield",
+        role: "Senior Claims Handler",
+        can_approve_over_limit: true,
+      },
+      {
+        handler_id: "HND-02",
+        name: "Marcus Oyelaran",
+        role: "Claims Handler",
+        can_approve_over_limit: false,
+      },
+    ],
     "/api/claims": [queueClaim],
     "/api/claims/CLM-1001": claim,
     "/api/policies/POL-2001": policy,
@@ -154,19 +204,100 @@ it("shows a decided claim in full", async () => {
 });
 
 it("says when a claim has no decision", async () => {
-  responses["/api/claims/CLM-1001"] = {
-    ...claim,
-    status: "waiting",
-    decision: null,
-    sign_off: null,
-    payment: null,
-  };
+  responses["/api/claims/CLM-1001"] = waitingClaim;
+  responses["/api/claims/CLM-1001/steps"] = [];
   responses["/api/customers/CUS-3001"] = { ...customer, previous_claims: [] };
   renderAt("#/claims/CLM-1001");
   expect(
     await screen.findByText("The agent has not decided this claim yet."),
   ).toBeDefined();
   expect(await screen.findByText("No earlier claims.")).toBeDefined();
+  expect(
+    screen.getByText("The agent has not worked on this claim yet."),
+  ).toBeDefined();
+});
+
+it("shows the agent's steps", async () => {
+  renderAt("#/claims/CLM-1001");
+  expect(await screen.findByText("Reading the claim")).toBeDefined();
+});
+
+it("runs the agent once on a waiting claim", async () => {
+  responses["/api/claims/CLM-1001"] = waitingClaim;
+  responses["POST /api/claims/CLM-1001/agent-run"] = { status: "queued" };
+  renderAt("#/claims/CLM-1001");
+  fireEvent.click(await screen.findByRole("button", { name: "Run agent" }));
+  const queued = await screen.findByRole("button", {
+    name: "Queued for the agent",
+  });
+  expect((queued as HTMLButtonElement).disabled).toBe(true);
+  expect(posted).toEqual([
+    { url: "/api/claims/CLM-1001/agent-run", body: undefined },
+  ]);
+});
+
+it("offers no agent run or sign-off on a decided claim", async () => {
+  renderAt("#/claims/CLM-1001");
+  await screen.findByText("Approved");
+  expect(screen.queryByRole("button")).toBeNull();
+  expect(screen.queryByRole("combobox")).toBeNull();
+});
+
+it("signs off a claim with the chosen handler", async () => {
+  responses["/api/claims/CLM-1001"] = signOffClaim;
+  responses["POST /api/claims/CLM-1001/sign-off"] = { status: "decided" };
+  renderAt("#/claims/CLM-1001");
+  const button = await screen.findByRole("button", {
+    name: "Sign off and pay",
+  });
+  expect((button as HTMLButtonElement).disabled).toBe(true);
+  await screen.findByRole("option", { name: "Dana Whitfield" });
+  expect(screen.queryByRole("option", { name: "Marcus Oyelaran" })).toBeNull();
+  fireEvent.change(screen.getByLabelText("Handler"), {
+    target: { value: "HND-01" },
+  });
+  fireEvent.click(button);
+  await vi.waitFor(() => {
+    expect(posted).toEqual([
+      {
+        url: "/api/claims/CLM-1001/sign-off",
+        body: JSON.stringify({ handler_id: "HND-01" }),
+      },
+    ]);
+  });
+});
+
+it("shows why a sign-off failed", async () => {
+  responses["/api/claims/CLM-1001"] = signOffClaim;
+  renderAt("#/claims/CLM-1001");
+  await screen.findByRole("option", { name: "Dana Whitfield" });
+  fireEvent.change(screen.getByLabelText("Handler"), {
+    target: { value: "HND-01" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Sign off and pay" }));
+  expect((await screen.findByRole("alert")).textContent).toBe("Not found");
+});
+
+it("works the queue and says how many claims it queued", async () => {
+  responses["POST /api/queue/agent-run"] = { started: 1 };
+  renderAt("#/");
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Work the queue" }),
+  );
+  expect((await screen.findByRole("status")).textContent).toBe(
+    "1 claim queued for the agent",
+  );
+});
+
+it("shows a plain message when the backend does not respond", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.resolve(new Response("oops", { status: 500 }))),
+  );
+  renderAt("#/");
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    "The backend did not respond",
+  );
 });
 
 it("shows the instructions read only", async () => {

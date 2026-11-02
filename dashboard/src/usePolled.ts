@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { errorMessage } from "./format";
 
 const POLL_MS = 2000;
 
@@ -7,12 +8,15 @@ export interface Polled<T> {
   error: string | null;
 }
 
-export function usePolled<T>(load: () => Promise<T>): Polled<T> {
+export function usePolled<T>(
+  load: () => Promise<T>,
+): Polled<T> & { refresh: () => void } {
   const [polled, setPolled] = useState<Polled<T>>({ data: null, error: null });
+  const [refreshes, setRefreshes] = useState(0);
 
   useEffect(() => {
     let active = true;
-    const refresh = (): void => {
+    const fetchNow = (): void => {
       load().then(
         (data) => {
           if (active) setPolled({ data, error: null });
@@ -21,19 +25,24 @@ export function usePolled<T>(load: () => Promise<T>): Polled<T> {
           if (active) {
             setPolled((current) => ({
               data: current.data,
-              error: error instanceof Error ? error.message : String(error),
+              error: errorMessage(error),
             }));
           }
         },
       );
     };
-    refresh();
-    const timer = setInterval(refresh, POLL_MS);
+    fetchNow();
+    const timer = setInterval(fetchNow, POLL_MS);
     return () => {
       active = false;
       clearInterval(timer);
     };
-  }, [load]);
+  }, [load, refreshes]);
 
-  return polled;
+  return {
+    ...polled,
+    refresh: () => {
+      setRefreshes((count) => count + 1);
+    },
+  };
 }

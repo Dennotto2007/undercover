@@ -108,6 +108,20 @@ export interface Customer {
   previous_claims: PreviousClaim[];
 }
 
+export interface Handler {
+  handler_id: string;
+  name: string;
+  role: string;
+  can_approve_over_limit: boolean;
+}
+
+export interface Step {
+  step_id: number;
+  thread_id: string;
+  text: string;
+  created_at: string;
+}
+
 async function failureMessage(response: Response): Promise<string> {
   try {
     const body = (await response.json()) as { detail: string };
@@ -123,6 +137,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+function post<T>(path: string, body?: unknown): Promise<T> {
+  return request<T>(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 export const api = {
   listClaims: () => request<QueueClaim[]>("/api/claims"),
   getClaim: (claimId: string) => request<Claim>(`/api/claims/${claimId}`),
@@ -130,4 +152,14 @@ export const api = {
   getCustomer: (customerId: string) =>
     request<Customer>(`/api/customers/${customerId}`),
   getInstructions: () => request<{ text: string }>("/api/instructions"),
+  listHandlers: () => request<Handler[]>("/api/handlers"),
+  listSteps: (claimId: string) =>
+    request<Step[]>(`/api/claims/${claimId}/steps`),
+  runAgent: (claimId: string) =>
+    post<{ status: string }>(`/api/claims/${claimId}/agent-run`),
+  workQueue: () => post<{ started: number }>("/api/queue/agent-run"),
+  signOff: (claimId: string, handlerId: string) =>
+    post<{ status: string }>(`/api/claims/${claimId}/sign-off`, {
+      handler_id: handlerId,
+    }),
 };

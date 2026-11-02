@@ -177,17 +177,17 @@ Builds the look and the three pages with live data but no actions, and sets up t
 
 Adds the handler's actions and the live view. These go in once the read pages are stable, since each one changes what those pages show.
 
-- [ ] A Run agent button appears on a `waiting` claim and starts the agent. It shows the claim has been queued and cannot be clicked twice.
-- [ ] A Work the queue button on the queue page starts every waiting claim and shows how many.
-- [ ] Steps appear on the claim page one by one while the agent works, with no refresh, in an `aria-live="polite"` region.
-- [ ] The queue updates its statuses with no refresh.
-- [ ] A claim `waiting_for_sign_off` shows a handler picker and a Sign off and pay button. After clicking, it shows the handler, the payment and `Decided`.
-- [ ] The sign-off controls appear on no other status.
-- [ ] A failed API call shows a plain message on the page, using the alert color.
-- [ ] Playwright with the stub model: run a claim, watch the steps arrive, and see `Decided` with a payment.
-- [ ] Playwright with the stub model: run a claim that approves over the limit and tries to pay, see `Waiting for sign-off` with no payment, sign off, and see `Decided` with the handler's name and the payment.
-- [ ] Browser: click through both of those journeys by hand and re-check the page after each click.
-- [ ] `npm run check:ts` and `npm run e2e` pass.
+- [x] A Run agent button appears on a `waiting` claim and starts the agent. It shows the claim has been queued and cannot be clicked twice.
+- [x] A Work the queue button on the queue page starts every waiting claim and shows how many.
+- [x] Steps appear on the claim page one by one while the agent works, with no refresh, in an `aria-live="polite"` region.
+- [x] The queue updates its statuses with no refresh.
+- [x] A claim `waiting_for_sign_off` shows a handler picker and a Sign off and pay button. After clicking, it shows the handler, the payment and `Decided`.
+- [x] The sign-off controls appear on no other status.
+- [x] A failed API call shows a plain message on the page, using the alert color.
+- [x] Playwright with the stub model: run a claim, watch the steps arrive, and see `Decided` with a payment.
+- [x] Playwright with the stub model: run a claim that approves over the limit and tries to pay, see `Waiting for sign-off` with no payment, sign off, and see `Decided` with the handler's name and the payment.
+- [x] Browser: click through both of those journeys by hand and re-check the page after each click.
+- [x] `npm run check:ts` and `npm run e2e` pass.
 
 ## Phase 6: The real thing
 

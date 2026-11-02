@@ -263,7 +263,7 @@ h1.id {
 .facts {
   display: grid;
   gap: 0.25rem 1rem;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: max-content minmax(0, 1fr);
   margin: 0;
 }
 
@@ -288,4 +288,70 @@ h1.id {
 .muted {
   color: var(--ink);
   opacity: 0.8;
+}
+
+button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.25rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--royal-blue);
+  color: var(--white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.sign-off {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--steel-blue);
+  color: var(--white);
+}
+
+.action-note {
+  margin: 0;
+}
+
+.steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps li {
+  display: grid;
+  gap: 0 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr);
 }
